@@ -1,6 +1,7 @@
 import {Router} from "express";
 import {Request, Response} from "express";
-import mysql from 'mysql2/promise';
+import mysql, {ResultSetHeader} from 'mysql2/promise';
+import {TaskTo} from "../to/task.to.js";
 
 const pool = mysql.createPool({
     host: 'localhost',
@@ -33,8 +34,15 @@ async function getAllTasks(req: Request, res: Response) {
 
 }
 
-function saveTask(req: Request, res: Response) {
-    res.send('<h1>Task Controller Post</h1>');
+async function saveTask(req: Request, res: Response) {
+    const task = <TaskTo> req.body;
+    const connection = await pool.getConnection();
+    const [{insertId}] = await connection.execute<ResultSetHeader>('INSERT INTO task (description, status, email) VALUES (?, false, ?)',
+        [task.description, task.email]);
+    task.id = insertId;
+    task.status = false;
+    res.status(201).json(task);
+    pool.releaseConnection(connection);
 }
 
 function updateTask(req: Request, res: Response) {
