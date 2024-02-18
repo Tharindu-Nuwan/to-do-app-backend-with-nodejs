@@ -2,14 +2,15 @@ import {Router} from "express";
 import {Request, Response} from "express";
 import mysql, {ResultSetHeader, RowDataPacket} from 'mysql2/promise';
 import {TaskTo} from "../to/task.to.js";
+import 'dotenv/config';
 
 const pool = mysql.createPool({
-    host: 'localhost',
-    port: 3306,
-    database: 'dep11_to_do_app_backend',
-    user: 'root',
-    password: '1234',
-    connectionLimit: 10,
+    host: process.env.DB_HOST,
+    port: +process.env.DB_PORT!,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    connectionLimit: +process.env.DB_CONNECTION_LIMIT!,
 })
 
 const controller = Router();
