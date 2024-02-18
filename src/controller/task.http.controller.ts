@@ -63,8 +63,19 @@ async function updateTask(req: Request, res: Response) {
     pool.releaseConnection(connection);
 }
 
-function deleteTask(req: Request, res: Response) {
-    res.send('<h1>Task Controller Delete</h1>');
+async function deleteTask(req: Request, res: Response) {
+    const taskId = +req.params.id;
+    const connection = await pool.getConnection();
+    const [result] = await connection.execute<RowDataPacket[]>('SELECT * FROM task WHERE id = ?',
+        [taskId]);
+    if (!result.length) {
+        res.sendStatus(404);
+    } else {
+        await connection.execute('DELETE FROM task WHERE id = ?',
+            [taskId]);
+        res.sendStatus(204);
+    }
+    pool.releaseConnection(connection);
 }
 
 export {controller as TaskHttpController};
